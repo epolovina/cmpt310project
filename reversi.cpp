@@ -17,6 +17,13 @@ Reversi::Reversi()
 	}
 }
 
+bool Reversi::validMoves()
+{
+	char currTurn = turn;
+
+	return false;
+}
+
 void Reversi::displayBoard()
 {
 	board[3][4] = 'O';
@@ -30,18 +37,46 @@ void Reversi::displayBoard()
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
+	for (int i = 0; i < boardLen; i++) {
+		std::cout << i <<  ": [";
+		for (int j = 0; j < boardLen; j++) {
+			std::cout << std::setw(2) << j << " ";
+		}
+		std::cout << "]" << std::endl;
+	}
+}
+
+int Reversi::getTileIndex(int tile)
+{
+
+}
+
+void Reversi::chooseMove()
+{
+	char input;
+	bool valid = false;
+	while (!valid) {
+		std::cin >> input;
+		if (input) {
+			break;
+		}
+	}
 }
 
 void Reversi::play()
 {
 	bool result = false;
-	char input;
+	
 	while(!result) {
 		if (turn == 'X') {
-			std::cin >> input;
+			chooseMove();
+			turn = 'O';
 		} 
 		else if (turn == 'O') {
 			
+
+			turn = 'X';
 		}
 	}
 }

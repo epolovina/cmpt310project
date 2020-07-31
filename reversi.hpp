@@ -14,6 +14,8 @@ class Reversi
 		void play();
 		void chooseMove();
 		void checkWin();
+		bool validMoves();
+		int getTileIndex(int tile);
 }; 
 
 #endif

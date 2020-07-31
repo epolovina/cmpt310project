@@ -26,4 +26,4 @@ valgrind: myls
 			./myls
 
 clean:
-	rm -f *.o *.out mcts reversi
+	rm -f *.o *.out mcts reversi main
