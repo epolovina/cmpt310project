@@ -12,11 +12,9 @@ class mcts {
         }
 };
 
-int main() {
-    mcts a("name");
-    std::cout << a.getName() << std::endl;
+// int main() {
+//     mcts a("name");
+//     std::cout << a.getName() << std::endl;
 
-
-    return 0;
-}
-
+//     return 0;
+// }

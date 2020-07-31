@@ -1,11 +1,19 @@
 CC = g++
 CCFLAGS = -g -Wall -Wpedantic
-TARGET = mcts.o
+TARGET = mcts.o reversi.o main.o
 
-all: clean mcts
+all: clean build
+
+build: mcts reversi
 
 mcts: $(TARGET)
 	$(CC) $(CCFLAGS) $(TARGET) -o mcts
+
+reversi: $(TARGET)
+	$(CC) $(CCFLAGS) $(TARGET) -o reversi
+
+main: $(TARGET)
+	$(CC) $(CCFLAGS) $(TARGET) -o main
 
 $(TARGET): %.o: %.cpp
 	$(CC) -c $(CCFLAGS) $< -o $@
@@ -18,5 +26,4 @@ valgrind: myls
 			./myls
 
 clean:
-	rm -f *.o *.out mcts
-
+	rm -f *.o *.out mcts reversi
