@@ -1,20 +1,26 @@
+#include "mcts.hpp"
 #include <iostream>
 
-class mcts {
-    private:
-        std::string name;
-    public:
-        mcts(std::string n) {
-            name = n;
-        }
-        std::string getName() {
-            return name;
-        }
-};
+mcts::mcts(std::string n)
+{
+    name = n;
+}
 
-// int main() {
-//     mcts a("name");
-//     std::cout << a.getName() << std::endl;
+mcts::~mcts()
+{
+}
 
-//     return 0;
-// }
+std::string mcts::getName()
+{
+    return mcts::name;
+}
+
+int mcts::checkOutcome()
+{
+    return 0;
+}
+
+int mcts::doRandomPayout()
+{
+    return 0;
+}

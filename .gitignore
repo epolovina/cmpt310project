@@ -1,3 +1,7 @@
-.ccls-cache/*
+.ccls-cache/
+.vscode/
 *.o
+build
 mcts
+main
+reversi

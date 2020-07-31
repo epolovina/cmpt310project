@@ -1,29 +1,30 @@
-CC = g++
-CCFLAGS = -g -Wall -Wpedantic
-TARGET = mcts.o reversi.o main.o
+CXX = g++
+CXXFLAGS = -g -Wall -Wpedantic
+BUILD_DIR = build
+OBJECTS = mcts.o main.o reversi.o
+TARGET = main
 
-all: clean build
+OBJECT := $(addprefix $(BUILD_DIR)/,$(OBJECTS))
 
-build: mcts reversi main
+.PHONY: all valgrind clean
 
-mcts: $(TARGET)
-	$(CC) $(CCFLAGS) $(TARGET) -o mcts
+all: $(TARGET)
 
-reversi: $(TARGET)
-	$(CC) $(CCFLAGS) $(TARGET) -o reversi
+$(TARGET): $(OBJECT) 
+	$(CXX) $(CXXFLAGS) $(OBJECT) -o $(TARGET)
 
-main: $(TARGET)
-	$(CC) $(CCFLAGS) $(TARGET) -o main
+$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
-$(TARGET): %.o: %.cpp
-	$(CC) -c $(CCFLAGS) $< -o $@
-
-valgrind: myls
+valgrind: out
 	valgrind -s --leak-check=full \
 			 --show-leak-kinds=all \
 			 --track-origins=yes \
 			 --show-reachable=yes\
-			./myls
+			$(TARGET)
 
 clean:
-	rm -f *.o *.out mcts reversi main
+	rm -Rf *.o *.out out build main mcts reversi
+
+$(BUILD_DIR):
+	mkdir $@

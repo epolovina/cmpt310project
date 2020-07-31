@@ -1,20 +1,22 @@
-#include <iostream>
-#include <string> 
-#include <iomanip>
 #include "reversi.hpp"
+#include <iomanip>
+#include <iostream>
+#include <string>
 
 Reversi::Reversi()
 {
-	boardLen = 8;
-	int tile = 0;
-	std::string sTile = " ";
-	for (int i = 0; i < boardLen; i++) {
-		for (int j = 0; j < boardLen; j++) {
-			sTile =  std::to_string(tile);
-			board[i][j] = sTile;
-			tile++;
-		}
-	}
+    boardLen = 8;
+    int tile = 0;
+
+    std::string sTile = " ";
+    for (int i = 0; i < boardLen; i++) {
+        for (int j = 0; j < boardLen; j++) {
+            sTile = std::to_string(tile);
+
+            Reversi::board[i][j] = sTile;
+            tile++;
+        }
+    }
 }
 
 bool Reversi::validMoves()
@@ -26,10 +28,10 @@ bool Reversi::validMoves()
 
 void Reversi::displayBoard()
 {
-	board[3][4] = 'O';
-	board[3][3] = 'X';
-	board[4][3] = 'O';
-	board[4][4] = 'X';
+    Reversi::board[3][4] = 'O';
+    Reversi::board[3][3] = 'X';
+    Reversi::board[4][3] = 'O';
+    Reversi::board[4][4] = 'X';
 
 	for (int i = 0; i < boardLen; i++) {
 		for (int j = 0; j < boardLen; j++) {
