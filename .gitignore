@@ -1,4 +1,5 @@
-.ccls-cache/*
+.ccls-cache
 *.o
 mcts
 .vscode
+build

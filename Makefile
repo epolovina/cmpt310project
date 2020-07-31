@@ -1,22 +1,27 @@
-CC = g++
-CCFLAGS = -g -Wall -Wpedantic
-TARGET = mcts.o
+CXX = g++
+CXXFLAGS = -g -Wall -Wpedantic
+BUILD_DIR = build
+# OUTPUT = $(BUILD_DIR)/out
+OBJECTS = mcts
+TARGET = mcts
 
 all: clean mcts
 
-mcts: $(TARGET)
-	$(CC) $(CCFLAGS) $(TARGET) -o mcts
+mcts: $(OBJECTS).o
+	$(CXX) $(CXXFLAGS) $(BUILD_DIR)/$(OBJECTS).o -o $(TARGET)
 
-$(TARGET): %.o: %.cpp
-	$(CC) -c $(CCFLAGS) $< -o $@
+$(OBJECTS).o: %.o: %.cpp | $(BUILD_DIR)
+	$(CXX) -c $(CXXFLAGS) $< -o $(BUILD_DIR)/$@
 
-valgrind: myls
+valgrind: mcts
 	valgrind -s --leak-check=full \
 			 --show-leak-kinds=all \
 			 --track-origins=yes \
 			 --show-reachable=yes\
-			./myls
+			./mcts
 
 clean:
-	rm -f *.o *.out mcts
+	rm -Rf *.o *.out mcts build
 
+$(BUILD_DIR):
+	mkdir $@
