@@ -6,7 +6,8 @@ using namespace std;
 int main()
 {
 	Reversi game;
-	game.displayBoard();
+	// game.displayBoard();
+	game.play();
 
 	return 0;
 }
