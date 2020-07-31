@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <vector>
 
 Reversi::Reversi()
 {
@@ -21,10 +22,10 @@ Reversi::Reversi()
 
 void Reversi::displayBoard()
 {
-    Reversi::board[3][4] = 'O';
-    Reversi::board[3][3] = 'X';
-    Reversi::board[4][3] = 'O';
-    Reversi::board[4][4] = 'X';
+    Reversi::board[3][4] = "\033[95mO\033[0m";
+    Reversi::board[3][3] = "\033[36mX\033[0m";
+    Reversi::board[4][3] = "\033[95mO\033[0m";
+    Reversi::board[4][4] = "\033[36mX\033[0m";
 
     for (int i = 0; i < boardLen; i++) {
         for (int j = 0; j < boardLen; j++) {
@@ -44,4 +45,35 @@ void Reversi::play()
         } else if (turn == 'O') {
         }
     }
+}
+std::vector<int> Reversi::getLegalMoves()
+{
+    static const int arr[] = {16,2,77,29};
+    std::vector<int> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    return vec;
+}
+void Reversi::placePiece(int move) 
+{
+	return;
+}
+
+bool Reversi::getIsGameFinished() 
+{
+	bool isGameFinished = Reversi::isGameFinished;
+	return isGameFinished;
+}
+bool Reversi::getIsGameTied() 
+{
+	bool isGameTied = Reversi::isGameTied;
+	return isGameTied;
+}
+bool Reversi::getDidWeWin()
+{
+	bool didWeWin = Reversi::didWeWin;
+	return didWeWin;
+}
+bool Reversi::getDidWeLose()
+{
+	bool didWeLose = Reversi::didWelose;
+	return didWeLose;
 }

@@ -21,7 +21,11 @@ class Reversi
 		void chooseMove();
 		void checkWin();
 		std::vector<int> getLegalMoves();
-		void placePiece();
+		void placePiece(int move);
+		bool getIsGameTied();
+		bool getDidWeWin();
+		bool getDidWeLose();
+		bool getIsGameFinished();
 }; 
 
 #endif
