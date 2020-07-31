@@ -49,7 +49,7 @@ void Reversi::displayBoard()
 
 int Reversi::getTileIndex(int tile)
 {
-
+	 
 }
 
 void Reversi::chooseMove()
