@@ -1,12 +1,12 @@
-#include "reversi.hpp"
 #include <iostream>
+#include "reversi.hpp"
 
 using namespace std;
 
 int main()
 {
-	Reversi game(10);
-	// game.displayBoard();
+	Reversi game;
+	game.displayBoard();
 
 	return 0;
 }

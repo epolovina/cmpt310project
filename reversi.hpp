@@ -5,13 +5,15 @@ class Reversi
 { 
 	private:
 		int boardLen;
+		std::string board[8][8];
+		char turn;
 
 	public: 
-		Reversi(int n);
-	  
-	// printname is not defined inside class definition 
-	void displayBoard();
-
+		Reversi();
+		void displayBoard();
+		void play();
+		void chooseMove();
+		void checkWin();
 }; 
 
 #endif

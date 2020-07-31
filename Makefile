@@ -4,7 +4,7 @@ TARGET = mcts.o reversi.o main.o
 
 all: clean build
 
-build: mcts reversi
+build: mcts reversi main
 
 mcts: $(TARGET)
 	$(CC) $(CCFLAGS) $(TARGET) -o mcts
