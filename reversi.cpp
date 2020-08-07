@@ -1,4 +1,5 @@
 #include "reversi.hpp"
+#include "mcts.hpp"
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -28,7 +29,19 @@ void Reversi::displayBoard()
 {
 	for (int i = 0; i < boardLen; i++) {
 		for (int j = 0; j < boardLen; j++) {
-			std::cout << std::setw(2) << board[i][j] << " ";
+			if (board[i][j] == "X") {
+				std::cout << std::right <<std::setw(2) << " \033[92mX\033[0m" << " ";
+			} else if (board[i][j] == "O") {
+				std::cout << std::setw(2) << " \033[36mO\033[0m" << " ";
+			} else if(validMoves(i*8+j) != -1) {
+				if (i*8+j < 10) {
+					std::cout << std::setw(2) << " \033[93m" << board[i][j] << "\033[0m" << " ";
+				} else {
+					std::cout << std::setw(2) << "\033[93m" << board[i][j] << "\033[0m" << " ";
+				} 
+			} else {
+				std::cout << std::setw(2) << board[i][j] << " ";
+			}
 		}
 		std::cout << std::endl;
 	}
@@ -49,18 +62,17 @@ int Reversi::getTileColumn(int tile)
 
 bool Reversi::canPlace(int toTile, int fromTile) 
 {
-	std::string oppTurn;
+	// std::string oppTurn;
 	int diff = toTile - fromTile;
 	int curr = fromTile + diff;
 	bool valid = false;
-
-	if (turn == "X") {
-		oppTurn = "O";
-	} else {
-		oppTurn = "X";
-	}
+	Reversi::changeTurn();
 	// board[getTileRow(curr)][getTileColumn(curr)] = turn;
 	while (!valid) {
+		if (curr < 0) {
+			valid = false;
+			break;
+		}
 		if (board[getTileRow(curr)][getTileColumn(curr)] == oppTurn) {
 			// board[getTileRow(curr)][getTileColumn(curr)] = turn;
 			curr += diff;
@@ -76,9 +88,9 @@ bool Reversi::canPlace(int toTile, int fromTile)
 	return valid;
 }
 
-bool Reversi::validMoves(int tile)
+int Reversi::validMoves(int tile)
 {
-	std::string oppTurn;
+	// std::string oppTurn;
 	int downLeft  = tile + 7;
 	int down      = tile + 8;
 	int downRight = tile + 9;
@@ -87,77 +99,77 @@ bool Reversi::validMoves(int tile)
 	int upRight   = tile - 7;
 	int right     = tile + 1;
 	int left      = tile - 1;
-	bool valid    = false;
+	int valid    = -1;
 	
-	if (turn == "X") {
-		oppTurn = "O";
-	} else {
-		oppTurn = "X";
-	}
+	Reversi::changeTurn();
 
 	if ((upLeft > 0) && (tile % 8 != 0) && (board[getTileRow(upLeft)][getTileColumn(upLeft)] == oppTurn)) {
 		if (canPlace(upLeft, tile)) {
-			flipTiles(upLeft, tile);
-			valid = true;
+			// flipTiles(upLeft, tile);
+			valid = 0;
+			return valid;
 		}
 	} 
 	if ((upRight > 0) && ((tile+1) % 8 != 0) && (board[getTileRow(upRight)][getTileColumn(upRight)] == oppTurn)) {
 		if (canPlace(upRight, tile)) {
-			flipTiles(upRight, tile);
-			valid = true;
+			// flipTiles(upRight, tile);
+			valid = 1;
+			return valid;
 		}
 	} 
 	if ((up > 0) && (board[getTileRow(up)][getTileColumn(up)] == oppTurn)) {
 		if (canPlace(up, tile)) {
-			flipTiles(up, tile);
-			valid = true;
+			// flipTiles(up, tile);
+			valid = 2;
+			return valid;
 		}
 	} 
 	if ((downLeft < 64) && (tile % 8 != 0) && (board[getTileRow(downLeft)][getTileColumn(downLeft)] == oppTurn)) {
 		if (canPlace(downLeft, tile)) {
-			flipTiles(downLeft, tile);
-			valid = true;
+			// flipTiles(downLeft, tile);
+			valid = 3;
+			return valid;
 		}
 	} 
 	if ((downRight < 64) && ((tile+1) % 8 != 0) && (board[getTileRow(downRight)][getTileColumn(downRight)] == oppTurn)) {
 		if (canPlace(downRight, tile)) {
-			flipTiles(downRight, tile);
-			valid = true;
+			// flipTiles(downRight, tile);
+			valid = 4;
+			return valid;
 		}
 	} 
 	if ((down < 64) && (board[getTileRow(down)][getTileColumn(down)] == oppTurn)) {
 		if (canPlace(down, tile)) {
-			flipTiles(down, tile);
-			valid = true;
+			// flipTiles(down, tile);
+			valid = 5;
+			return valid;
 		}
 	} 
 	if (((tile+1) % 8 != 0) && (board[getTileRow(right)][getTileColumn(right)] == oppTurn)) {
 		if (canPlace(right, tile)) {
-			flipTiles(right, tile);
-			valid = true;
+			// flipTiles(right, tile);
+			valid = 6;
+			return valid;
 		}
 	} 
 	if ((tile % 8 != 0) && (board[getTileRow(left)][getTileColumn(left)] == oppTurn)) {
 		if (canPlace(left, tile)) {
-			flipTiles(left, tile);
-			valid = true;
+			// flipTiles(left, tile);
+			valid = 7;
+			return valid;
 		}
 	}
-	return valid;
+	return -1;
 }
 
 void Reversi::flipTiles(int toTile, int fromTile)
 {
-	std::string oppTurn;
+	// std::string oppTurn;
 	int diff = toTile - fromTile;
 	int curr = fromTile;
 	bool valid = false;
 
-	if (turn == "X") {
-		oppTurn = "O";
-	} else {
-		oppTurn = "X";
-	}
+	Reversi::changeTurn();
 	board[getTileRow(curr)][getTileColumn(curr)] = turn;
 	curr += diff;
 	while (!valid) {
@@ -166,6 +178,8 @@ void Reversi::flipTiles(int toTile, int fromTile)
 			curr += diff;
 			continue;
 		} else if (board[getTileRow(curr)][getTileColumn(curr)] == turn) {
+			valid = true;
+		} else {
 			valid = true;
 		}
 	}
@@ -179,51 +193,140 @@ void Reversi::chooseMove()
 	while (!valid) {
 		std::cout << "Player " << turn << ", Choose a tile" << std::endl;
 		std::cin >> sTile;
-		curr = board[getTileRow(std::stoi(sTile))][getTileColumn(std::stoi(sTile))];
-		if (curr == "X" || curr == "O") {
-			std::cout << "Invalid tile, choose again" << std::endl;
-		}
-		else if (validMoves(std::stoi(sTile))) {
-			// flipTiles(tile);
-			break;
-		} else {
-			std::cout << "Invalid tile, choose again" << std::endl;
+		try {
+			try {
+				if (std::stoi(sTile) > 63) {
+					throw std::invalid_argument("Out of bounds");
+				}
+			} catch(const std::out_of_range&) {
+				throw std::invalid_argument("Out of bounds");
+			}
+
+			curr = board[getTileRow(std::stoi(sTile))][getTileColumn(std::stoi(sTile))];
+			if (curr == "X" || curr == "O") {
+				std::cout << "Invalid tile, choose again" << std::endl;
+			}
+			int fromTile = std::stoi(sTile);
+
+			if (placePiece(fromTile)) {
+				break;
+			}
+		} catch(const std::invalid_argument&) {
+			std::cout << "Please enter a number !!" << std::endl;
 		}
 	}
 }
 
-void Reversi::play()
+void Reversi::changeTurn() 
 {
-	bool result = false;
-	std::string firstPlayer = "";
-	std::cout << "Who goes first, Player(X) or Computer(O)?" << std::endl;
-	std::cin >> firstPlayer;
-	if (firstPlayer == "X" || firstPlayer == "x") {
-		turn = "X";
+	if (Reversi::turn == "X") {
+		Reversi::oppTurn = "O";
 	} else {
-		turn = "O";
-	}
-	while(!result) {
-		displayBoard();
-		if (turn == "X") {
-			chooseMove();
-			turn = "O";
-		} 
-		else if (turn == "O") {
-			chooseMove();
-			turn = "X";
-		}
+		Reversi::oppTurn = "X";
 	}
 }
+
 std::vector<int> Reversi::getLegalMoves()
 {
-    static const int arr[] = {16,2,77,29};
-    std::vector<int> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
-    return vec;
+    std::vector<int> validMoveVec;
+
+    for(int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++ ) {
+            int tile = i*8+j;
+            if(validMoves(tile) != -1) {
+				if (board[getTileRow(tile)][getTileColumn(tile)] != "X" 
+					&& board[getTileRow(tile)][getTileColumn(tile)] != "O") {
+					validMoveVec.push_back(tile);
+				}
+            }
+        }
+    }
+    return validMoveVec;
 }
-void Reversi::placePiece(int move) 
+
+bool Reversi::placePiece(int move) 
 {
-	return;
+    int toTile;
+    bool didWeMakeMove = false;
+	int valMoves = 0;
+	while ( valMoves != -1) {
+		valMoves = validMoves(move);
+		switch (valMoves)
+		{
+			case 0:
+				toTile = move - 9;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 1:
+				toTile = move - 7;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 2:
+				toTile = move - 8;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 3:
+				toTile = move + 7;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 4:
+				toTile = move + 9;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 5:
+				toTile = move + 8;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 6:
+				toTile = move + 1;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			case 7:
+				toTile = move - 1;
+				flipTiles(toTile, move);
+				didWeMakeMove = true;
+				break;
+			
+			default:
+				// std::cout << "Invalid tile, choose again" << std::endl;
+				break;
+		}
+	}
+	if (this->simulation) {
+		if (this->getTurn() == "X") {
+			this->setTurn("O");
+		} else {
+			this->setTurn("X");
+		}
+	}
+	return didWeMakeMove;
+}
+
+void Reversi::checkNumTiles()
+{
+	this->setNumX(0);
+	this->setNumO(0);
+	for(int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			int tile = i*8+j;
+			if (board[getTileRow(tile)][getTileColumn(tile)] == "X") {
+				int numX = getNumX();
+				numX++;
+				setNumX(numX);
+			} else if (board[getTileRow(tile)][getTileColumn(tile)] == "O") {
+				int numO = getNumO();
+				numO++;
+				setNumO(numO);
+			}
+		}
+	}
 }
 
 bool Reversi::getIsGameFinished() 
@@ -231,6 +334,11 @@ bool Reversi::getIsGameFinished()
 	bool isGameFinished = Reversi::isGameFinished;
 	return isGameFinished;
 }
+void Reversi::setIsGameFinished(bool gameStatus)
+{
+	Reversi::isGameFinished = true;
+}
+
 bool Reversi::getIsGameTied() 
 {
 	bool isGameTied = Reversi::isGameTied;
@@ -245,4 +353,38 @@ bool Reversi::getDidWeLose()
 {
 	bool didWeLose = Reversi::didWelose;
 	return didWeLose;
+}
+
+std::string Reversi::getTurn()
+{
+	return this->turn;
+}
+void Reversi::setTurn(std::string t)
+{
+	this->turn = t;
+}
+
+int Reversi::getNumX() 
+{
+	return Reversi::numX;
+}
+int Reversi::getNumO()
+{
+	return Reversi::numO;
+}
+
+void Reversi::setNumX(int x)
+{
+	this->numX = x;
+}
+void Reversi::setNumO(int o)
+{
+	this->numO = o;
+}
+
+void Reversi::setSimulation(bool sim) {
+	this->simulation = sim;
+}
+bool Reversi::getSimulation() {
+	return this->simulation;
 }

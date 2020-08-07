@@ -6,10 +6,10 @@
 
 class mcts {
   private:
-    Reversi game;
+    Reversi* game;
 
   public:
-    mcts(Reversi game);
+    mcts(Reversi* game);
     ~mcts();
 
     std::string getName();

@@ -9,10 +9,14 @@ class Reversi
 		int boardLen;
 		std::string board[8][8];
 		std::string turn;
+		std::string oppTurn;
 		bool didWeWin;
 		bool didWelose;
 		bool isGameTied;
 		bool isGameFinished;
+		int numX;
+		int numO;
+		bool simulation;
 
 	public: 
 		Reversi();
@@ -20,18 +24,28 @@ class Reversi
 		void play();
 		void chooseMove();
 		void checkWin();
-		bool validMoves(int tile);
+		int validMoves(int tile);
 		void flipTiles(int toTile, int fromTile);
 		bool canPlace(int toTile, int fromTile);
 		int getTileRow(int tile);
 		int getTileColumn(int tile);
-		int tileIndex[2];
 		std::vector<int> getLegalMoves();
-		void placePiece(int move);
+		bool placePiece(int move);
 		bool getIsGameTied();
 		bool getDidWeWin();
 		bool getDidWeLose();
 		bool getIsGameFinished();
+		std::string getTurn();
+		void setTurn(std::string turn);
+		void changeTurn();
+		void setIsGameFinished(bool gameStatus);
+		int getNumX();
+		int getNumO();
+		void setNumX(int x);
+		void setNumO(int o);
+		void checkNumTiles();
+		void setSimulation(bool sim);
+		bool getSimulation();
 }; 
 
 #endif
