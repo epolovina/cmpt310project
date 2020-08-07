@@ -30,12 +30,12 @@ int mcts::checkOutcome(Reversi gameCopy)
 
 int mcts::doRandomPayout(int move)
 {
-    srand(time(0));
+    // srand(time(0));
     Reversi* gameCopy_p = this->game;
     Reversi gameCopy = *(Reversi*) gameCopy_p;
     gameCopy.setSimulation(true);
     gameCopy.placePiece(move);
-    gameCopy.changeTurn();
+    gameCopy.checkOppTurn();
     gameCopy.setNumO(0);
     gameCopy.setNumX(0);
 
@@ -58,21 +58,26 @@ int mcts::doRandomPayout(int move)
             }
         } else {
             unsigned int randIndex  = rand() % legalMoves.size();
+            // printf("randIndex %d\n", randIndex);
             int          randomMove = legalMoves.at(randIndex);
             gameCopy.placePiece(randomMove);
-            gameCopy.changeTurn();
+            gameCopy.checkOppTurn();
             // gameCopy.displayBoard();
         }
-        if (this->checkOutcome(gameCopy) == -1) {
-            return this->checkOutcome(gameCopy);
-        }
-        if (this->checkOutcome(gameCopy) == 0) {
-            return this->checkOutcome(gameCopy);
-        }
-        if (this->checkOutcome(gameCopy) == 1) {
-            return this->checkOutcome(gameCopy);
-        }
+        // if (this->checkOutcome(gameCopy) == -1) {
+        //     return this->checkOutcome(gameCopy);
+        // }
+        // if (this->checkOutcome(gameCopy) == 0) {
+        //     return this->checkOutcome(gameCopy);
+        // }
+        // if (this->checkOutcome(gameCopy) == 1) {
+        //     return this->checkOutcome(gameCopy);
+        // }
+        // return this->checkOutcome(gameCopy);
     }
+    // std::cout << "Score: \033[92mX\033[0m: " << gameCopy.getNumX() << " \033[36mO\033[0m: " << gameCopy.getNumO() << std::endl;
+    // gameCopy.displayBoard();
+    // std::cout << std::endl;
     return this->checkOutcome(gameCopy);
 }
 
@@ -86,7 +91,7 @@ void mcts::chooseMove()
     }
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 5; i++) { // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
         }
     }
@@ -100,6 +105,15 @@ void mcts::chooseMove()
         if (it->second > maxWins) {
             chosenMove = it->first;
             maxWins    = it->second;
+        }
+    }
+    if (chosenMove == -1) {
+        for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
+            std::cout << "first: " << it->first << " second: " << it->second << std::endl;
+        }
+        if (legalMoves.size() != 0) {
+            unsigned int randIndex  = rand() % legalMoves.size();
+            chosenMove = legalMoves.at(randIndex);
         }
     }
     std::cout << "Player O placing: " << chosenMove << std::endl;

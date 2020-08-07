@@ -33,7 +33,12 @@ void play(Reversi* game_p)
 			std::cout << std::endl;
 			std::cout << "Score: \033[92mX\033[0m: " << game_p->getNumX() << " \033[36mO\033[0m: " << game_p->getNumO() << std::endl;
 		}
+		if (game_p->checkWin()) {
+			result = game_p->getIsGameFinished();
+			game_p->displayBoard();
+		}
 	}
+	std::cout << "Game finished" << std::endl;
 }
 
 int main()

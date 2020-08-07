@@ -23,7 +23,7 @@ class Reversi
 		void displayBoard();
 		void play();
 		void chooseMove();
-		void checkWin();
+		bool checkWin();
 		int validMoves(int tile);
 		void flipTiles(int toTile, int fromTile);
 		bool canPlace(int toTile, int fromTile);
@@ -37,7 +37,7 @@ class Reversi
 		bool getIsGameFinished();
 		std::string getTurn();
 		void setTurn(std::string turn);
-		void changeTurn();
+		void checkOppTurn();
 		void setIsGameFinished(bool gameStatus);
 		int getNumX();
 		int getNumO();
