@@ -2,6 +2,7 @@
 #include "reversi.hpp"
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <random>
 #include <string>
@@ -91,31 +92,25 @@ void mcts::chooseMove()
     }
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 5; i++) { // TODO:
+        for (int i = 0; i < 500; i++) { // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
         }
     }
 
     std::map<int, int>::iterator it;
 
-    int maxWins    = -1;
+    int maxWins    = (int) -INFINITY;
     int chosenMove = -1;
 
     for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
+
+        printf("key: %d  Value: %d\n", it->first, it->second);
+
         if (it->second > maxWins) {
             chosenMove = it->first;
             maxWins    = it->second;
         }
     }
-    if (chosenMove == -1) {
-        for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
-            std::cout << "first: " << it->first << " second: " << it->second << std::endl;
-        }
-        if (legalMoves.size() != 0) {
-            unsigned int randIndex  = rand() % legalMoves.size();
-            chosenMove = legalMoves.at(randIndex);
-        }
-    }
-    std::cout << "Player O placing: " << chosenMove << std::endl;
+    std::cout << "Player " << this->game->getTurn() <<" placing: " << chosenMove << std::endl;
     this->game->placePiece(chosenMove);
 }
