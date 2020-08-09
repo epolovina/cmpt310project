@@ -81,7 +81,7 @@ void mcts::chooseMove()
     }
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 100; i++) { // TODO:
+        for (int i = 0; i < 100; i++) {  // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
         }
     }
@@ -105,6 +105,18 @@ void mcts::chooseMove()
 
 void mcts::heuristic()
 {
+    /**
+     *
+    { 20, -3, 11,  8,  8, 11, -3, 20 }
+    { -3, -7, -4,  1,  1, -4, -7, -3 },
+    { 11, -4,  2,  2,  2,  2, -4, 11 }
+    {  8,  1,  2, -3, -3,  2,  1,  8 },
+    {  8,  1,  2, -3, -3,  2,  1,  8 }
+    { 11, -4,  2,  2,  2,  2, -4, 11 },
+    { -3, -7, -4,  1,  1, -4, -7, -3 }
+    { 20, -3, 11,  8,  8, 11, -3, 20 }
+     *
+    */
     int weightMap[8][8] = { { 20, -3, 11, 8, 8, 11, -3, 20 }, { -3, -7, -4, 1, 1, -4, -7, -3 },
                             { 11, -4, 2, 2, 2, 2, -4, 11 },   { 8, 1, 2, -3, -3, 2, 1, 8 },
                             { 8, 1, 2, -3, -3, 2, 1, 8 },     { 11, -4, 2, 2, 2, 2, -4, 11 },
@@ -119,10 +131,10 @@ void mcts::heuristic()
     }
 
     int largestWeight = (int) -INFINITY;
-    int chosenMove = -1;
+    int chosenMove    = -1;
     for (std::map<int, int>::iterator it = getWeights.begin(); it != getWeights.end(); it++) {
         // printf("key: %d  Value: %d\n", it->first, it->second);
-        if(it->second > largestWeight) {
+        if (it->second > largestWeight) {
             chosenMove = it->first;
         }
     }
