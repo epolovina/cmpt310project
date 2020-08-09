@@ -5,3 +5,4 @@ build
 mcts
 main
 reversi
+core.*

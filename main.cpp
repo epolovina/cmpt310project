@@ -28,7 +28,8 @@ void play(Reversi* game_p)
 			game_p->setTurn("O");
 		} 
 		else if (game_p->getTurn() == "O") {
-			AI.chooseMove();
+			// AI.chooseMove();
+			AI.heuristic();
 			game_p->setTurn("X");
 			game_p->checkNumTiles();
 			std::cout << std::endl;

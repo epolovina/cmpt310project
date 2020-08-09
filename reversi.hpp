@@ -46,6 +46,8 @@ class Reversi
 		void checkNumTiles();
 		void setSimulation(bool sim);
 		bool getSimulation();
+		// std::vector<std::vector<std::string>> getBoard();
+		std::string* getBoard();
 }; 
 
 #endif

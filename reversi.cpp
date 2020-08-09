@@ -416,3 +416,8 @@ void Reversi::setSimulation(bool sim) {
 bool Reversi::getSimulation() {
 	return this->simulation;
 }
+
+std::string* Reversi::getBoard()
+{
+	return *this->board;
+}

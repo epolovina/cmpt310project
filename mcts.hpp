@@ -14,9 +14,10 @@ class mcts {
 
     std::string getName();
 
-    int checkOutcome(Reversi gameCopy);
-    int doRandomPayout(int move);
+    int  checkOutcome(Reversi gameCopy);
+    int  doRandomPayout(int move);
     void chooseMove();
+    void heuristic();
 };
 
 #endif
