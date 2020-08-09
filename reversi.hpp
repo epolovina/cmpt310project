@@ -17,6 +17,14 @@ class Reversi
 		int numX;
 		int numO;
 		bool simulation;
+		enum direction {upLeft    = -9,
+		 				up        = -8, 
+						upRight   = -7,
+						downLeft  = 7, 
+						down      = 8,
+						downRight = 9,
+						right     = 1,
+						left      = -1};
 
 	public: 
 		Reversi();

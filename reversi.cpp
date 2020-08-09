@@ -74,7 +74,18 @@ void Reversi::flipTiles(int toTile, int fromTile)
 	board[getTileRow(curr)][getTileColumn(curr)] = turn;
 	curr += diff;
 	while (!valid) {
+		if (curr < 0 || curr > 63) {
+			valid = false;
+			break;
+		}
 		if (board[getTileRow(curr)][getTileColumn(curr)] == oppTurn) {
+			if ((diff == direction::upLeft || diff == direction::left || diff == direction::downLeft) && (curr % 8 == 0)) {
+				valid = false;
+				break;	
+			} else if ((diff == direction::upRight || diff == direction::right || diff == direction::downRight) && ((curr + 1) % 8 == 0)) {
+				valid = false;
+				break;	
+			}
 			board[getTileRow(curr)][getTileColumn(curr)] = turn;
 			curr += diff;
 			continue;
@@ -90,7 +101,6 @@ void Reversi::flipTiles(int toTile, int fromTile)
 
 bool Reversi::canPlace(int toTile, int fromTile) 
 {
-	// std::string oppTurn;
 	int diff = toTile - fromTile;
 	int curr = fromTile + diff;
 	bool valid = false;
@@ -102,7 +112,13 @@ bool Reversi::canPlace(int toTile, int fromTile)
 			break;
 		}
 		if (board[getTileRow(curr)][getTileColumn(curr)] == oppTurn) {
-			// board[getTileRow(curr)][getTileColumn(curr)] = turn;
+			if ((diff == direction::upLeft || diff == direction::left || diff == direction::downLeft) && (curr % 8 == 0)) {
+				valid = false;
+				break;	
+			} else if ((diff == direction::upRight || diff == direction::right || diff == direction::downRight) && ((curr + 1) % 8 == 0)) {
+				valid = false;
+				break;	
+			}
 			curr += diff;
 			continue;
 		} else if (board[getTileRow(curr)][getTileColumn(curr)] == turn) {

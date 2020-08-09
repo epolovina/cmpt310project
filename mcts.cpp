@@ -81,7 +81,7 @@ void mcts::chooseMove()
     }
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 500; i++) {  // TODO:
+        for (int i = 0; i < 100; i++) { // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
         }
     }
@@ -92,7 +92,7 @@ void mcts::chooseMove()
     int chosenMove = -1;
 
     for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
-        printf("key: %d  Value: %d\n", it->first, it->second);
+        // printf("key: %d  Value: %d\n", it->first, it->second);
 
         if (it->second > maxWins) {
             chosenMove = it->first;
@@ -118,13 +118,14 @@ void mcts::heuristic()
         getWeights.insert(std::pair<int, int>(move, weightMap[row][col]));
     }
 
-    int largestWeight = -1;
+    int largestWeight = (int) -INFINITY;
     int chosenMove = -1;
     for (std::map<int, int>::iterator it = getWeights.begin(); it != getWeights.end(); it++) {
-        printf("key: %d  Value: %d\n", it->first, it->second);
+        // printf("key: %d  Value: %d\n", it->first, it->second);
         if(it->second > largestWeight) {
             chosenMove = it->first;
         }
     }
+    std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
     this->game->placePiece(chosenMove);
 }
