@@ -92,7 +92,7 @@ void mcts::chooseMove()
     }
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 500; i++) { // TODO:
+        for (int i = 0; i < 100; i++) { // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
         }
     }
