@@ -7,6 +7,8 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <time.h>
+#include <chrono>
 
 mcts::mcts(Reversi* game)
 {
@@ -39,6 +41,11 @@ int mcts::doRandomPayout(int move)
     gameCopy.checkOppTurn();
     gameCopy.setNumO(0);
     gameCopy.setNumX(0);
+
+    // if((((float)(clock()-startTime))/CLOCKS_PER_SEC) > TIMECUTOFF*timeLimit){
+    //     timeout = true;
+    //     return heuristic(board);
+    // }
 
     while (!gameCopy.getIsGameFinished()) {
         std::vector<int> legalMoves = gameCopy.getLegalMoves();
@@ -84,12 +91,24 @@ void mcts::chooseMove()
     for (auto move : legalMoves) {
         countWinningMoves.insert(std::pair<int, int>(move, 0));
     }
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 100; i++) {  // TODO:
+        for (int i = 0; i < 250; i++) {  // TODO:
             countWinningMoves[move] += this->doRandomPayout(move);
+
+            auto end = std::chrono::system_clock::now();
+            elapsed_seconds = end-start;
+            if (elapsed_seconds > std::chrono::seconds(5)) {
+                std::cout << "elapsed time limit: " << elapsed_seconds.count() << "s\n";
+                break;
+            }
         }
     }
+    // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    
 
     std::map<int, int>::iterator it;
 
