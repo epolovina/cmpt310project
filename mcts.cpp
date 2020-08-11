@@ -96,8 +96,8 @@ int mcts::playOutNTimes(int move)
     auto start = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds;
 
-    for (int i = 0; i < 250; i++) {
-    // while(true){
+    // for (int i = 0; i < 250; i++) {
+    while(true){
         winNum += this->doRandomPayout(move);
         numPlayouts++;
 
@@ -108,7 +108,8 @@ int mcts::playOutNTimes(int move)
             break;
         }
     }
-    printf("played %d games\n", numPlayouts);
+    // double sec = elapsed_seconds.count();
+    // printf("played %f games/sec\n", (double)numPlayouts/sec);
 
     return winNum;
 }
