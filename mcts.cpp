@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <pthread.h>
+#include <time.h>
+#include <chrono>
 
 mcts::mcts(Reversi* game)
 {
@@ -45,6 +47,11 @@ int mcts::doRandomPayout(int move)
     gameCopy.checkOppTurn();
     gameCopy.setNumO(0);
     gameCopy.setNumX(0);
+
+    // if((((float)(clock()-startTime))/CLOCKS_PER_SEC) > TIMECUTOFF*timeLimit){
+    //     timeout = true;
+    //     return heuristic(board);
+    // }
 
     while (!gameCopy.getIsGameFinished()) {
         std::vector<int> legalMoves = gameCopy.getLegalMoves();
@@ -85,10 +92,24 @@ int mcts::doRandomPayout(int move)
 int mcts::playOutNTimes(int move)
 {
     int winNum;
+    int numPlayouts = 0;
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 250; i++) {
+    // while(true){
         winNum += this->doRandomPayout(move);
+        numPlayouts++;
+
+        auto end = std::chrono::system_clock::now();
+        elapsed_seconds = end-start;
+        if (elapsed_seconds > std::chrono::seconds(5)) {
+            std::cout << "elapsed time limit: " << elapsed_seconds.count() << "s\n";
+            break;
+        }
     }
+    printf("played %d games\n", numPlayouts);
+
     return winNum;
 }
 
@@ -120,22 +141,39 @@ void mcts::chooseMove()
         
         countWinningMoves[legalMoves.at(i)] += (int)(long)status;
     }
+ ///////////////////////////////////////////////////////////////////////
+ //TODO: work with cancel afer 5 sec
+    // for (auto move : legalMoves) {
+    //     for (int i = 0; i < 250; i++) {
+    //         countWinningMoves[move] += this->doRandomPayout(move);
 
-    std::map<int, int>::iterator it;
+    //         auto end = std::chrono::system_clock::now();
+    //         elapsed_seconds = end-start;
+    //         if (elapsed_seconds > std::chrono::seconds(5)) {
+    //             std::cout << "elapsed time limit: " << elapsed_seconds.count() << "s\n";
+    //             break;
+    //         }
+    //     }
+    // }
+    // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 
-    int maxWins    = (int) -INFINITY;
-    int chosenMove = -1;
+    
 
-    for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
-        // printf("key: %d  Value: %d\n", it->first, it->second);
+        std::map<int, int>::iterator it;
 
-        if (it->second > maxWins) {
-            chosenMove = it->first;
-            maxWins    = it->second;
+        int maxWins    = (int) -INFINITY;
+        int chosenMove = -1;
+
+        for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
+            // printf("key: %d  Value: %d\n", it->first, it->second);
+
+            if (it->second > maxWins) {
+                chosenMove = it->first;
+                maxWins    = it->second;
+            }
         }
-    }
-    std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
-    this->game->placePiece(chosenMove);
+        std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
+        this->game->placePiece(chosenMove);
 }
 
 int mcts::heuristic(Reversi gameCopy)

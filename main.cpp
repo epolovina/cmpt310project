@@ -31,8 +31,8 @@ void play(Reversi* game_p, flags flagStruct)
 	while(!result) {
 		game_p->displayBoard();
 		if (game_p->getTurn() == "X") {
-			game_p->chooseMove();
-			// AI.chooseMove();
+			// game_p->chooseMove();
+			AI.chooseMove();
 			std::cout << std::endl;
 			game_p->checkNumTiles();
 			std::cout << "Score: \033[92mX\033[0m: " << game_p->getNumX() << " \033[36mO\033[0m: " << game_p->getNumO() << std::endl;
