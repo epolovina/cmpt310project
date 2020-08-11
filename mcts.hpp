@@ -13,12 +13,17 @@ class mcts {
     ~mcts();
 
     std::string getName();
+    struct {
+        bool human;
+        bool heuristic;
+        bool mcts;
+    } player_struct;
 
     int  checkOutcome(Reversi gameCopy);
     int  doRandomPayout(int move);
     void chooseMove();
-    int heuristic(Reversi gameCopy);
-    int checkFrontiers(int move, Reversi gameCopy);
+    int  heuristic(Reversi gameCopy);
+    int  checkFrontiers(int move, Reversi gameCopy);
 };
 
 #endif

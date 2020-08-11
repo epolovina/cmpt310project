@@ -5,6 +5,9 @@ typedef struct flags_s
 {
     bool heuristic;
     bool pureMCTS;
+    bool human;
 } flags;
+
+// typedef struct player_s players;
 
 #endif

@@ -1,7 +1,5 @@
-#include "mcts.hpp"
-#include "reversi.hpp"
-#include <algorithm>
 #include <iostream>
+#include <algorithm>
 #include <limits>
 #include <map>
 #include <random>
@@ -9,6 +7,26 @@
 #include <vector>
 #include <time.h>
 #include <chrono>
+#include <random>
+#include <iterator>
+#include "mcts.hpp"
+#include "reversi.hpp"
+#include "main.hpp"
+
+// https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container
+template<typename Iter, typename RandomGenerator>
+Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+    std::advance(start, dis(g));
+    return start;
+}
+
+template<typename Iter>
+Iter select_randomly(Iter start, Iter end) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    return select_randomly(start, end, gen);
+}
 
 mcts::mcts(Reversi* game)
 {
@@ -42,11 +60,6 @@ int mcts::doRandomPayout(int move)
     gameCopy.setNumO(0);
     gameCopy.setNumX(0);
 
-    // if((((float)(clock()-startTime))/CLOCKS_PER_SEC) > TIMECUTOFF*timeLimit){
-    //     timeout = true;
-    //     return heuristic(board);
-    // }
-
     while (!gameCopy.getIsGameFinished()) {
         std::vector<int> legalMoves = gameCopy.getLegalMoves();
 
@@ -66,12 +79,33 @@ int mcts::doRandomPayout(int move)
             }
         } else {
             int randomMove;
+            
             if (gameCopy.getTurn() == "O") {
-                randomMove = heuristic(gameCopy);
+                if (this->player_struct.mcts) {
+                    if (!this->player_struct.heuristic) {
+                        randomMove = *select_randomly(legalMoves.begin(), legalMoves.end());
+                    } else {
+                        randomMove = heuristic(gameCopy);
+                    }
+                } else if (this->player_struct.heuristic) {
+                    randomMove = heuristic(gameCopy);
+                }
+                // randomMove = heuristic(gameCopy);
             } else {
-                unsigned int randIndex = rand() % legalMoves.size();
+                if (this->player_struct.mcts) {
+                    randomMove = *select_randomly(legalMoves.begin(), legalMoves.end());
+                    // if (!player_s.heuristic) {
+                    // } else {
+                    //     randomMove = heuristic(gameCopy);
+                    // }
+                } else if (this->player_struct.heuristic) {
+                    randomMove = heuristic(gameCopy);
+                }
+                // unsigned int randIndex = rand() % legalMoves.size();
+                // randomMove = legalMoves.at(randIndex);
                 // printf("randIndex %d\n", randIndex);
-                randomMove = legalMoves.at(randIndex);
+
+                // randomMove = *select_randomly(legalMoves.begin(), legalMoves.end());
             }
             gameCopy.placePiece(randomMove);
             gameCopy.checkOppTurn();
@@ -95,20 +129,18 @@ void mcts::chooseMove()
     std::chrono::duration<double> elapsed_seconds;
 
     for (auto move : legalMoves) {
-        for (int i = 0; i < 250; i++) {  // TODO:
+        for (int i = 0; i < 200; i++) { 
             countWinningMoves[move] += this->doRandomPayout(move);
 
             auto end = std::chrono::system_clock::now();
             elapsed_seconds = end-start;
             if (elapsed_seconds > std::chrono::seconds(5)) {
-                std::cout << "elapsed time limit: " << elapsed_seconds.count() << "s\n";
+                std::cout << "Elapsed time limit: " << elapsed_seconds.count() << "s\n";
+                std::cout << "Playouts: " << i << "\n";
                 break;
             }
         }
     }
-    // std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-    
 
     std::map<int, int>::iterator it;
 
