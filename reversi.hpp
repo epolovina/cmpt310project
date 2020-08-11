@@ -56,6 +56,8 @@ class Reversi
 		bool getSimulation();
 		// std::vector<std::vector<std::string>> getBoard();
 		std::string* getBoard();
+		enum direction getDirections();
+		std::string getBoardAt(int move);
 }; 
 
 #endif

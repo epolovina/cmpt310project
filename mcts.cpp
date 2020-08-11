@@ -58,9 +58,14 @@ int mcts::doRandomPayout(int move)
                 break;
             }
         } else {
-            unsigned int randIndex = rand() % legalMoves.size();
-            // printf("randIndex %d\n", randIndex);
-            int randomMove = legalMoves.at(randIndex);
+            int randomMove;
+            if (gameCopy.getTurn() == "O") {
+                randomMove = heuristic(gameCopy);
+            } else {
+                unsigned int randIndex = rand() % legalMoves.size();
+                // printf("randIndex %d\n", randIndex);
+                randomMove = legalMoves.at(randIndex);
+            }
             gameCopy.placePiece(randomMove);
             gameCopy.checkOppTurn();
             // gameCopy.displayBoard();
@@ -103,7 +108,7 @@ void mcts::chooseMove()
     this->game->placePiece(chosenMove);
 }
 
-void mcts::heuristic()
+int mcts::heuristic(Reversi gameCopy)
 {
     /**
      *
@@ -117,27 +122,103 @@ void mcts::heuristic()
     { 20, -3, 11,  8,  8, 11, -3, 20 }
      *
     */
+    //     std::string (*grid)[8];
+    //     grid = (std::string(*)[8]) this->game->getBoard();
+
     int weightMap[8][8] = { { 20, -3, 11, 8, 8, 11, -3, 20 }, { -3, -7, -4, 1, 1, -4, -7, -3 },
                             { 11, -4, 2, 2, 2, 2, -4, 11 },   { 8, 1, 2, -3, -3, 2, 1, 8 },
                             { 8, 1, 2, -3, -3, 2, 1, 8 },     { 11, -4, 2, 2, 2, 2, -4, 11 },
                             { -3, -7, -4, 1, 1, -4, -7, -3 }, { 20, -3, 11, 8, 8, 11, -3, 20 } };
 
-    std::vector<int>   legalMoves = this->game->getLegalMoves();
-    std::map<int, int> getWeights;
+    std::vector<int> legalMoves = gameCopy.getLegalMoves();
+    // std::map<int, int> getWeights;
+    std::map<int, std::vector<int>> getFrontiers;
     for (auto move : legalMoves) {
-        int row = this->game->getTileRow(move);
-        int col = this->game->getTileColumn(move);
-        getWeights.insert(std::pair<int, int>(move, weightMap[row][col]));
+        int row = gameCopy.getTileRow(move);
+        int col = gameCopy.getTileColumn(move);
+        // getWeights.insert(std::pair<int, int>(move, weightMap[row][col]));
+        std::vector<int> frontierWeightPair;
+        frontierWeightPair.push_back(checkFrontiers(move, gameCopy));
+        frontierWeightPair.push_back(weightMap[row][col]);
+        getFrontiers.insert(std::pair<int, std::vector<int>>(move, frontierWeightPair));
     }
 
-    int largestWeight = (int) -INFINITY;
-    int chosenMove    = -1;
-    for (std::map<int, int>::iterator it = getWeights.begin(); it != getWeights.end(); it++) {
+    int largestWeight    = (int) -INFINITY;
+    int smallestFrontier = (int) INFINITY;
+    int chosenMove       = -1;
+    // using std::map<int, int>
+    for (std::map<int, std::vector<int>>::iterator it = getFrontiers.begin();
+         it != getFrontiers.end();
+         it++) {
         // printf("key: %d  Value: %d\n", it->first, it->second);
-        if (it->second > largestWeight) {
-            chosenMove = it->first;
+        if (it->second.at(0) < smallestFrontier) {
+            chosenMove       = it->first;
+            smallestFrontier = it->second.at(0);
+        } else if (it->second.at(0) == smallestFrontier) {
+            if (it->second.at(1) > largestWeight) {
+                chosenMove    = it->first;
+                largestWeight = it->second.at(1);
+            }
         }
     }
-    std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
-    this->game->placePiece(chosenMove);
+
+    // std::cout << "Player " << gameCopy.getTurn() << " placing: " << chosenMove << std::endl;
+    // this->game->placePiece(chosenMove);
+    return chosenMove;
+}
+
+int mcts::checkFrontiers(int move, Reversi gameCopy)
+{
+    int downLeft  = move + 7;
+    int down      = move + 8;
+    int downRight = move + 9;
+    int upLeft    = move - 9;
+    int up        = move - 8;
+    int upRight   = move - 7;
+    int right     = move + 1;
+    int left      = move - 1;
+
+    int frontierCounter = 0;
+    if ((move % 8) != 0) {  // if not left edge move
+        if (downLeft < 56) {
+            if (gameCopy.getBoardAt(downLeft) != "X" && gameCopy.getBoardAt(downLeft) != "O") {
+                frontierCounter++;
+            }
+        }
+        if (gameCopy.getBoardAt(left) != "X" && gameCopy.getBoardAt(left) != "O") {
+            frontierCounter++;
+        }
+        if (upLeft > 0) {
+            if (gameCopy.getBoardAt(upLeft) != "X" && gameCopy.getBoardAt(upLeft) != "O") {
+                frontierCounter++;
+            }
+        }
+    }
+    if ((move + 1 % 8) != 0) {  // if not right edge
+        if (downRight < 63) {
+            if (gameCopy.getBoardAt(downRight) != "X" && gameCopy.getBoardAt(downRight) != "O") {
+                frontierCounter++;
+            }
+        }
+        if (gameCopy.getBoardAt(right) != "X" && gameCopy.getBoardAt(right) != "O") {
+            frontierCounter++;
+        }
+        if (upRight > 0) {
+            if (gameCopy.getBoardAt(upRight) != "X" && gameCopy.getBoardAt(upRight) != "O") {
+                frontierCounter++;
+            }
+        }
+    }
+
+    if (move > 7) {
+        if (gameCopy.getBoardAt(up) != "X" && gameCopy.getBoardAt(up) != "O") {
+            frontierCounter++;
+        }
+    }
+    if (move < 56) {
+        if (gameCopy.getBoardAt(down) != "X" && gameCopy.getBoardAt(down) != "O") {
+            frontierCounter++;
+        }
+    }
+    return frontierCounter;
 }

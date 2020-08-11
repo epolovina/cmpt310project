@@ -17,7 +17,8 @@ class mcts {
     int  checkOutcome(Reversi gameCopy);
     int  doRandomPayout(int move);
     void chooseMove();
-    void heuristic();
+    int heuristic(Reversi gameCopy);
+    int checkFrontiers(int move, Reversi gameCopy);
 };
 
 #endif

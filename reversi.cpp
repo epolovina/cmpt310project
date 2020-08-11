@@ -437,3 +437,11 @@ std::string* Reversi::getBoard()
 {
 	return *this->board;
 }
+
+std::string Reversi::getBoardAt(int move)
+{
+	int row = this->getTileRow(move);
+	int col = this->getTileColumn(move);
+
+	return this->board[row][col];
+}

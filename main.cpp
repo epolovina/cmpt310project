@@ -32,7 +32,7 @@ void play(Reversi* game_p, flags flagStruct)
 		game_p->displayBoard();
 		if (game_p->getTurn() == "X") {
 			game_p->chooseMove();
-			// AI.chooseMove()
+			// AI.chooseMove();
 			std::cout << std::endl;
 			game_p->checkNumTiles();
 			std::cout << "Score: \033[92mX\033[0m: " << game_p->getNumX() << " \033[36mO\033[0m: " << game_p->getNumO() << std::endl;
@@ -41,7 +41,8 @@ void play(Reversi* game_p, flags flagStruct)
 		else if (game_p->getTurn() == "O") {
 			// AI.chooseMove();
 			if (flagStruct.heuristic) {
-				AI.heuristic();
+				// AI.heuristic();
+				AI.chooseMove();
 			} else if (flagStruct.pureMCTS) {
 				AI.chooseMove();
 			} else {
