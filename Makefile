@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -g -Wall -Wpedantic
+CXXFLAGS = -g -Wall -Wpedantic -pthread
 BUILD_DIR = build
 OBJECTS = mcts.o main.o reversi.o
 TARGET = main

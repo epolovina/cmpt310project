@@ -19,6 +19,8 @@ class mcts {
     void chooseMove();
     int heuristic(Reversi gameCopy);
     int checkFrontiers(int move, Reversi gameCopy);
+    int playOutNTimes(int move);
+    // static void *playoutHelper(void *context);
 };
 
 #endif

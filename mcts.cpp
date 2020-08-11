@@ -7,6 +7,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <pthread.h>
 
 mcts::mcts(Reversi* game)
 {
@@ -16,6 +17,11 @@ mcts::mcts(Reversi* game)
 mcts::~mcts()
 {
 }
+
+struct threadParams {
+    void* context;
+    int move;
+};
 
 int mcts::checkOutcome(Reversi gameCopy)
 {
@@ -76,6 +82,22 @@ int mcts::doRandomPayout(int move)
     return this->checkOutcome(gameCopy);
 }
 
+int mcts::playOutNTimes(int move)
+{
+    int winNum;
+
+    for (int i = 0; i < 500; i++) {
+        winNum += this->doRandomPayout(move);
+    }
+    return winNum;
+}
+
+static void *playoutHelper(void *context)
+{
+    struct threadParams* params = (struct threadParams*)context;
+    return (void*)(long)((mcts *)params->context)->playOutNTimes(params->move);
+}
+
 void mcts::chooseMove()
 {
     Reversi            game = *(Reversi*) this->game;
@@ -85,10 +107,18 @@ void mcts::chooseMove()
         countWinningMoves.insert(std::pair<int, int>(move, 0));
     }
 
-    for (auto move : legalMoves) {
-        for (int i = 0; i < 100; i++) {  // TODO:
-            countWinningMoves[move] += this->doRandomPayout(move);
-        }
+    pthread_t threadPool[64];
+    for (long unsigned int i = 0; i < legalMoves.size(); i++) {
+        struct threadParams params;
+        params.context = (void*) this;
+        params.move = legalMoves.at(i);
+        pthread_create(&threadPool[i], NULL, playoutHelper, &params);
+    }
+    for (long unsigned int i = 0; i < legalMoves.size(); i++) {
+        int* status;
+        pthread_join(threadPool[i], (void**)&status);
+        
+        countWinningMoves[legalMoves.at(i)] += (int)(long)status;
     }
 
     std::map<int, int>::iterator it;
