@@ -1,6 +1,7 @@
 CXX = g++
-CXXFLAGS = -g -Wall -Wpedantic
+CXXFLAGS = -g -Wall -Wpedantic -pthread
 BUILD_DIR = build
+SUBMIT_DIR = submission
 OBJECTS = mcts.o main.o reversi.o
 TARGET = main
 
@@ -16,15 +17,22 @@ $(TARGET): $(OBJECT)
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
-valgrind: out
-	valgrind -s --leak-check=full \
-			 --show-leak-kinds=all \
-			 --track-origins=yes \
-			 --show-reachable=yes\
-			$(TARGET)
+sub: $(SUBMIT_DIR)
+	cp -t submission/\
+		main.cpp main.hpp\
+		mcts.cpp mcts.hpp\
+		reversi.cpp reversi.hpp\
+		README.md\
+		Makefile
+
+zip: sub
+	zip -r 310FinalProj.zip submission
 
 clean:
-	rm -Rf *.o *.out out build main mcts reversi
+	rm -Rf *.o *.out out build main mcts reversi submission
 
 $(BUILD_DIR):
+	mkdir $@
+
+$(SUBMIT_DIR):
 	mkdir $@

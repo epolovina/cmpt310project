@@ -5,6 +5,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <pthread.h>
 #include <time.h>
 #include <chrono>
 #include <random>
@@ -13,6 +14,7 @@
 #include "reversi.hpp"
 #include "main.hpp"
 
+// adapted from
 // https://stackoverflow.com/questions/6942273/how-to-get-a-random-element-from-a-c-container
 template<typename Iter, typename RandomGenerator>
 Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
@@ -36,6 +38,11 @@ mcts::mcts(Reversi* game)
 mcts::~mcts()
 {
 }
+
+struct threadParams {
+    void* context;
+    int move;
+};
 
 int mcts::checkOutcome(Reversi gameCopy)
 {
@@ -90,22 +97,12 @@ int mcts::doRandomPayout(int move)
                 } else if (this->player_struct.heuristic) {
                     randomMove = heuristic(gameCopy);
                 }
-                // randomMove = heuristic(gameCopy);
             } else {
                 if (this->player_struct.mcts) {
                     randomMove = *select_randomly(legalMoves.begin(), legalMoves.end());
-                    // if (!player_s.heuristic) {
-                    // } else {
-                    //     randomMove = heuristic(gameCopy);
-                    // }
                 } else if (this->player_struct.heuristic) {
                     randomMove = heuristic(gameCopy);
                 }
-                // unsigned int randIndex = rand() % legalMoves.size();
-                // randomMove = legalMoves.at(randIndex);
-                // printf("randIndex %d\n", randIndex);
-
-                // randomMove = *select_randomly(legalMoves.begin(), legalMoves.end());
             }
             gameCopy.placePiece(randomMove);
             gameCopy.checkOppTurn();
@@ -117,6 +114,37 @@ int mcts::doRandomPayout(int move)
     return this->checkOutcome(gameCopy);
 }
 
+int mcts::playOutNTimes(int move)
+{
+    int winNum;
+    int numPlayouts = 0;
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
+
+    for (int i = 0; i < 250; i++) {
+    // while(true){
+        winNum += this->doRandomPayout(move);
+        numPlayouts++;
+
+        auto end = std::chrono::system_clock::now();
+        elapsed_seconds = end-start;
+        if (elapsed_seconds > std::chrono::seconds(5)) {
+            // std::cout << "elapsed time limit: " << elapsed_seconds.count() << "s\n";
+            break;
+        }
+    }
+    // double sec = elapsed_seconds.count();
+    // printf("played %f games/sec\n", (double)numPlayouts/sec);
+
+    return winNum;
+}
+
+static void *playoutHelper(void *context)
+{
+    struct threadParams* params = (struct threadParams*)context;
+    return (void*)(long)((mcts *)params->context)->playOutNTimes(params->move);
+}
+
 void mcts::chooseMove()
 {
     Reversi            game = *(Reversi*) this->game;
@@ -125,38 +153,36 @@ void mcts::chooseMove()
     for (auto move : legalMoves) {
         countWinningMoves.insert(std::pair<int, int>(move, 0));
     }
-    auto start = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds;
 
-    for (auto move : legalMoves) {
-        for (int i = 0; i < 200; i++) { 
-            countWinningMoves[move] += this->doRandomPayout(move);
+    pthread_t threadPool[64];
+    for (long unsigned int i = 0; i < legalMoves.size(); i++) {
+        struct threadParams params;
+        params.context = (void*) this;
+        params.move = legalMoves.at(i);
+        pthread_create(&threadPool[i], NULL, playoutHelper, &params);
+    }
+    for (long unsigned int i = 0; i < legalMoves.size(); i++) {
+        int* status;
+        pthread_join(threadPool[i], (void**)&status);
+        
+        countWinningMoves[legalMoves.at(i)] += (int)(long)status;
+    }
 
-            auto end = std::chrono::system_clock::now();
-            elapsed_seconds = end-start;
-            if (elapsed_seconds > std::chrono::seconds(5)) {
-                std::cout << "Elapsed time limit: " << elapsed_seconds.count() << "s\n";
-                std::cout << "Playouts: " << i << "\n";
-                break;
+        std::map<int, int>::iterator it;
+
+        int maxWins    = (int) -INFINITY;
+        int chosenMove = -1;
+
+        for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
+            // printf("key: %d  Value: %d\n", it->first, it->second);
+
+            if (it->second > maxWins) {
+                chosenMove = it->first;
+                maxWins    = it->second;
             }
         }
-    }
-
-    std::map<int, int>::iterator it;
-
-    int maxWins    = (int) -INFINITY;
-    int chosenMove = -1;
-
-    for (it = countWinningMoves.begin(); it != countWinningMoves.end(); it++) {
-        // printf("key: %d  Value: %d\n", it->first, it->second);
-
-        if (it->second > maxWins) {
-            chosenMove = it->first;
-            maxWins    = it->second;
-        }
-    }
-    std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
-    this->game->placePiece(chosenMove);
+        std::cout << "Player " << this->game->getTurn() << " placing: " << chosenMove << std::endl;
+        this->game->placePiece(chosenMove);
 }
 
 int mcts::heuristic(Reversi gameCopy)
@@ -173,8 +199,6 @@ int mcts::heuristic(Reversi gameCopy)
     { 20, -3, 11,  8,  8, 11, -3, 20 }
      *
     */
-    //     std::string (*grid)[8];
-    //     grid = (std::string(*)[8]) this->game->getBoard();
 
     int weightMap[8][8] = { { 20, -3, 11, 8, 8, 11, -3, 20 }, { -3, -7, -4, 1, 1, -4, -7, -3 },
                             { 11, -4, 2, 2, 2, 2, -4, 11 },   { 8, 1, 2, -3, -3, 2, 1, 8 },
@@ -182,12 +206,10 @@ int mcts::heuristic(Reversi gameCopy)
                             { -3, -7, -4, 1, 1, -4, -7, -3 }, { 20, -3, 11, 8, 8, 11, -3, 20 } };
 
     std::vector<int> legalMoves = gameCopy.getLegalMoves();
-    // std::map<int, int> getWeights;
     std::map<int, std::vector<int>> getFrontiers;
     for (auto move : legalMoves) {
         int row = gameCopy.getTileRow(move);
         int col = gameCopy.getTileColumn(move);
-        // getWeights.insert(std::pair<int, int>(move, weightMap[row][col]));
         std::vector<int> frontierWeightPair;
         frontierWeightPair.push_back(checkFrontiers(move, gameCopy));
         frontierWeightPair.push_back(weightMap[row][col]);
@@ -197,11 +219,9 @@ int mcts::heuristic(Reversi gameCopy)
     int largestWeight    = (int) -INFINITY;
     int smallestFrontier = (int) INFINITY;
     int chosenMove       = -1;
-    // using std::map<int, int>
     for (std::map<int, std::vector<int>>::iterator it = getFrontiers.begin();
          it != getFrontiers.end();
          it++) {
-        // printf("key: %d  Value: %d\n", it->first, it->second);
         if (it->second.at(0) < smallestFrontier) {
             chosenMove       = it->first;
             smallestFrontier = it->second.at(0);

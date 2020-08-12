@@ -13,7 +13,8 @@ class mcts {
     ~mcts();
 
     std::string getName();
-    struct {
+    struct
+    {
         bool human;
         bool heuristic;
         bool mcts;
@@ -24,6 +25,7 @@ class mcts {
     void chooseMove();
     int  heuristic(Reversi gameCopy);
     int  checkFrontiers(int move, Reversi gameCopy);
+    int  playOutNTimes(int move);
 };
 
 #endif

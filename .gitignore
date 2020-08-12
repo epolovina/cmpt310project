@@ -6,3 +6,7 @@ mcts
 main
 reversi
 core.*
+*.csv
+*.py
+submission
+*.zip
